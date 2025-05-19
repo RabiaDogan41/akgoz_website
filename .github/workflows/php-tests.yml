@@ -11,16 +11,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Depoyu klonla
-      uses: actions/checkout@v3
+      - name: Depoyu klonla
+        uses: actions/checkout@v3
 
-    - name: PHP kur
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.2'
+      - name: PHP kur
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
 
-    - name: Composer'ı yükle
-      run: composer install
+      - name: Composer cache
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
 
-    - name: Testleri çalıştır
-      run: vendor/bin/phpunit --testdox
+      - name: Composer'ı yükle
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Otomatik yükleme oluştur
+        run: composer dump-autoload
+
+      - name: Testleri çalıştır
+        run: composer test
