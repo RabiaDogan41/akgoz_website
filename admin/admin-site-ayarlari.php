@@ -85,6 +85,7 @@ try {
         <div class="admin-content">
             <div class="admin-header">
                 <h1>Üst Bilgi Ayarları</h1>
+                cls
                 
             </div>
             
