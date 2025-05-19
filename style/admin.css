@@ -1,0 +1,371 @@
+/* Admin Panel Stilleri */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+    line-height: 1.6;
+}
+
+.admin-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.admin-sidebar {
+    width: 250px;
+    background-color: #333;
+    color: #fff;
+    position: fixed;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.admin-logo {
+    padding: 20px;
+    text-align: center;
+    border-bottom: 1px solid #444;
+}
+
+.admin-menu {
+    list-style: none;
+    padding: 20px 0;
+}
+
+.admin-menu li {
+    margin-bottom: 5px;
+}
+
+.admin-menu a {
+    color: #ddd;
+    text-decoration: none;
+    padding: 12px 20px;
+    display: block;
+    transition: all 0.3s;
+}
+
+.admin-menu, .admin-menu a.active {
+    background-color: #555;
+    color: #fff;
+    border-left: 4px solid #ff0000;
+}
+
+.admin-menu i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+
+/* Ana İçerik */
+.admin-content {
+    flex: 1;
+    padding: 20px;
+    margin-left: 250px;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.view-site-btn {
+    background-color: #004d99;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.view-site-btn:hover {
+    background-color: #003366;
+}
+
+.view-site-btn i {
+    margin-right: 5px;
+}
+
+/* Uyarı Kutuları */
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* İçerik Kutuları */
+.admin-box {
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 30px;
+}
+
+.admin-box h2 {
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    color: #333;
+}
+
+/* Form Stilleri */
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+input[type="text"],
+textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    font-family: inherit;
+}
+
+input[type="file"] {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 100%;
+}
+
+.checkbox {
+    display: flex;
+    align-items: center;
+}
+
+.checkbox input {
+    margin-right: 10px;
+    width: auto;
+}
+
+.checkbox label {
+    margin-bottom: 0;
+}
+
+small {
+    display: block;
+    color: #777;
+    margin-top: 5px;
+    font-size: 12px;
+}
+
+/* Butonlar */
+.btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s;
+    display: inline-block;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background-color: #b10000;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #ff0000;
+}
+
+.btn-sm {
+    padding: 6px 10px;
+    font-size: 14px;
+}
+
+.btn-edit {
+    background-color: #007bff;
+    color: white;
+    margin-right: 5px;
+}
+
+.btn-edit:hover {
+    background-color: #0069d9;
+}
+
+.btn-delete {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-delete:hover {
+    background-color: #c82333;
+}
+
+.form-buttons {
+    margin-top: 30px;
+    display: flex;
+    gap: 10px;
+}
+
+/* Tablo Stilleri */
+.table-container {
+    overflow-x: auto;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.admin-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.admin-table tr:hover {
+    background-color: #f9f9f9;
+}
+
+.thumbnail {
+    width: 80px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 3px;
+}
+
+.status {
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.active {
+    color: #ffffff;
+}
+
+.inactive {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Veri Yok Mesajı */
+.no-data {
+    text-align: center;
+    padding: 30px;
+    color: #777;
+}
+
+/* CKEditor Özelleştirme */
+.ck-editor__editable {
+    min-height: 200px !important;
+}
+
+/* Mobil Menü İçin Stillemeler */
+/* Mobil Menü İçin Stillemeler */
+.menu-toggle {
+    display: none;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 1000;
+    background-color: #333;
+    color: #fff;
+    width: 40px;
+    height: 40px;
+    border-radius: 5px;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.menu-toggle i {
+    font-size: 20px;
+}
+
+/* Responsive Düzenlemeler */
+@media screen and (max-width: 768px) {
+    .admin-container {
+        flex-direction: column;
+    }
+    
+    .admin-sidebar {
+        position: fixed;
+        top: 0;
+        left: -250px; /* Başlangıçta gizli olacak */
+        height: 100%;
+        width: 250px;
+        transition: left 0.3s ease;
+        z-index: 900;
+    }
+    
+    .admin-sidebar.active {
+        left: 0; /* Aktif olduğunda görünür olacak */
+    }
+    
+    .admin-content {
+        margin-left: 0;
+        width: 100%;
+        padding-top: 90px; /* Menü butonuna yer açmak için */
+    }
+    
+    .menu-toggle {
+        display: flex;
+    }
+    
+    body.menu-open {
+        overflow: hidden;
+    }
+    
+    /* Arka plan overlay */
+    .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 800;
+    }
+    
+    .overlay.active {
+        display: block;
+    }
+    
+    /* Admin header düzeltmesi */
+    .admin-header {
+        margin-top: -50px; /* Üstteki boşluğu azalt */
+    }
+}

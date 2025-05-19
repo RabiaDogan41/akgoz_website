@@ -1,0 +1,22 @@
+name: PHP Testleri
+
+on: [push, pull_request]
+
+jobs:
+  phpunit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Depoyu çek
+        uses: actions/checkout@v2
+
+      - name: PHP Kurulumu
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Composer yükle
+        run: composer install
+
+      - name: PHPUnit testlerini çalıştır
+        run: ./vendor/bin/phpunit --testdox

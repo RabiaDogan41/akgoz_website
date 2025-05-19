@@ -1,0 +1,337 @@
+<?php
+
+// Hata raporlamayı açın
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// Config dosyasını dahil edelim
+require_once '../config/config.php';
+// Oturum başlat
+session_start();
+
+// Oturum kontrolü
+adminOturumKontrol();
+
+
+// Bilgi bloğu ekleme işlemi
+if (isset($_POST['blok_ekle'])) {
+    $baslik = $_POST['baslik'];
+    $icerik = $_POST['icerik'];
+    $sira = isset($_POST['sira']) ? intval($_POST['sira']) : 0;
+    $aktif = isset($_POST['aktif']) ? 1 : 0;
+    
+    // Veritabanına ekleme
+    try {
+        $sql = "INSERT INTO bilgi_bloklari (baslik, icerik, sira, aktif) VALUES (?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        $sonuc = $stmt->execute([$baslik, $icerik, $sira, $aktif]);
+        
+        if ($sonuc) {
+            $basari_mesaji = "Bilgi bloğu başarıyla eklendi!";
+        } else {
+            $hata_mesaji = "Veritabanına eklenirken bir hata oluştu.";
+        }
+    } catch (PDOException $e) {
+        $hata_mesaji = "Veritabanı hatası: " . $e->getMessage();
+    }
+}
+
+// Bilgi bloğu silme işlemi
+if (isset($_GET['sil']) && isset($_GET['id'])) {
+    $id = intval($_GET['id']);
+    
+    try {
+        // Veritabanından kaydı sil
+        $stmt = $conn->prepare("DELETE FROM bilgi_bloklari WHERE id = ?");
+        $sonuc = $stmt->execute([$id]);
+        
+        if ($sonuc) {
+            $basari_mesaji = 'Bilgi bloğu başarıyla silindi!';
+        } else {
+            $hata_mesaji = 'Silme işlemi başarısız oldu.';
+        }
+    } catch(PDOException $e) {
+        $hata_mesaji = 'Veritabanı hatası: ' . $e->getMessage();
+    }
+    
+    // Sayfa yenilensin diye yönlendirme yapalım
+    header('Location: admin-bilgi-bloklari.php?silindi=1');
+    exit;
+}
+
+// Silme işlemi tamamlandığında
+if (isset($_GET['silindi']) && $_GET['silindi'] == '1') {
+    $basari_mesaji = 'Bilgi bloğu başarıyla silindi!';
+}
+
+// Bilgi bloğu güncelleme işlemi
+if (isset($_POST['blok_guncelle']) && isset($_POST['id'])) {
+    $id = intval($_POST['id']);
+    $baslik = $_POST['baslik'];
+    $icerik = $_POST['icerik'];
+    $sira = isset($_POST['sira']) ? intval($_POST['sira']) : 0;
+    $aktif = isset($_POST['aktif']) ? 1 : 0;
+    
+    try {
+        $sql = "UPDATE bilgi_bloklari SET baslik = ?, icerik = ?, sira = ?, aktif = ? WHERE id = ?";
+        $stmt = $conn->prepare($sql);
+        $sonuc = $stmt->execute([$baslik, $icerik, $sira, $aktif, $id]);
+        
+        if ($sonuc) {
+            $basari_mesaji = "Bilgi bloğu başarıyla güncellendi!";
+        } else {
+            $hata_mesaji = "Güncelleme sırasında bir hata oluştu.";
+        }
+    } catch (PDOException $e) {
+        $hata_mesaji = "Veritabanı hatası: " . $e->getMessage();
+    }
+}
+
+// Bilgi bloklarını listeleme
+try {
+    $stmt = $conn->query("SELECT * FROM bilgi_bloklari ORDER BY sira ASC");
+    $blok_listesi = $stmt->fetchAll();
+} catch (PDOException $e) {
+    echo "Bilgi blokları listelenirken hata oluştu: " . $e->getMessage();
+    $blok_listesi = [];
+}
+
+// Düzenleme modu için bilgi bloğu getirme
+$duzenle_modu = false;
+$duzenle_blok = null;
+
+if (isset($_GET['duzenle']) && isset($_GET['id'])) {
+    $id = intval($_GET['id']);
+    
+    try {
+        $stmt = $conn->prepare("SELECT * FROM bilgi_bloklari WHERE id = ? LIMIT 1");
+        $stmt->execute([$id]);
+        $duzenle_blok = $stmt->fetch();
+        
+        if ($duzenle_blok) {
+            $duzenle_modu = true;
+        }
+    } catch (PDOException $e) {
+        $hata_mesaji = "Veritabanı hatası: " . $e->getMessage();
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Bilgi Blokları Yönetimi</title>
+    <link rel="stylesheet" href="../style/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-sidebar">
+            <div class="admin-logo">
+                <h2>Admin Panel</h2>
+            </div>
+            <ul class="admin-menu">
+    <li><a href="admin.php" <?php echo basename($_SERVER['PHP_SELF']) == 'admin.php' ? 'class="active"' : ''; ?>><i class="fas fa-cogs"></i> Hizmet Yönetimi</a></li>
+    <li><a href="admin-hizmet-bolgeleri.php" <?php echo basename($_SERVER['PHP_SELF']) == 'admin-hizmet-bolgeleri.php' ? 'class="active"' : ''; ?>><i class="fas fa-map-marker-alt"></i> Hizmet Bölgeleri</a></li>
+    <li><a href="admin-firma-bilgileri.php" <?php echo basename($_SERVER['PHP_SELF']) == 'admin-firma-bilgileri.php' ? 'class="active"' : ''; ?>><i class="fas fa-building"></i> Firma Bilgileri</a></li>
+    <li><a href="admin-bilgi-bloklari.php" <?php echo basename($_SERVER['PHP_SELF']) == 'admin-bilgi-bloklari.php' ? 'class="active"' : ''; ?>><i class="fas fa-info-circle"></i> Bilgi Blokları</a></li>
+    <li><a href="admin-firma-sahipleri.php" <?php echo basename($_SERVER['PHP_SELF']) == 'admin-firma-sahipleri.php' ? 'class="active"' : ''; ?>><i class="fas fa-user-tie"></i> Firma Sahipleri</a></li>
+    <li><a href="admin-site-ayarlari.php" <?php echo basename($_SERVER['PHP_SELF']) == 'admin-site-ayarlari.php' ? 'class="active"' : ''; ?>><i class="fas fa-wrench"></i> Üst Bilgi Ayarları</a></li>
+    <li><a href="admin-footer-ayarlari.php" <?php echo basename($_SERVER['PHP_SELF']) == 'admin-footer-ayarlari.php' ? 'class="active"' : ''; ?>><i class="fas fa-shoe-prints"></i> Footer Ayarları</a></li>
+    <li><a href="admin-logout.php"><i class="fas fa-sign-out-alt"></i> Çıkış</a></li>
+</ul>
+        </div>
+        
+        <div class="admin-content">
+            <div class="admin-header">
+                <h1>Bilgi Blokları Yönetimi</h1>
+                
+            </div>
+            
+            <?php if (isset($basari_mesaji)): ?>
+            <div class="alert success"><?php echo $basari_mesaji; ?></div>
+            <?php endif; ?>
+            
+            <?php if (isset($hata_mesaji) && !empty($hata_mesaji)): ?>
+            <div class="alert error"><?php echo $hata_mesaji; ?></div>
+            <?php endif; ?>
+            
+            <div class="admin-box">
+                <h2><?php echo $duzenle_modu ? 'Bilgi Bloğunu Düzenle' : 'Yeni Bilgi Bloğu Ekle'; ?></h2>
+                <form action="" method="post">
+                    <?php if ($duzenle_modu): ?>
+                    <input type="hidden" name="id" value="<?php echo $duzenle_blok['id']; ?>">
+                    <?php endif; ?>
+                    
+                    <div class="form-group">
+                        <label for="baslik">Başlık:</label>
+                        <input type="text" id="baslik" name="baslik" value="<?php echo $duzenle_modu ? $duzenle_blok['baslik'] : ''; ?>" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="icerik">İçerik:</label>
+                        <textarea id="icerik" name="icerik" rows="6" required><?php echo $duzenle_modu ? $duzenle_blok['icerik'] : ''; ?></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="sira">Sıralama:</label>
+                        <input type="number" id="sira" name="sira" value="<?php echo $duzenle_modu ? $duzenle_blok['sira'] : '0'; ?>" min="0">
+                    </div>
+                    
+                    <div class="form-group checkbox">
+                        <input type="checkbox" id="aktif" name="aktif" <?php echo $duzenle_modu && $duzenle_blok['aktif'] == 1 ? 'checked' : (!$duzenle_modu ? 'checked' : ''); ?>>
+                        <label for="aktif">Aktif</label>
+                    </div>
+                    
+                    <div class="form-buttons">
+                        <?php if ($duzenle_modu): ?>
+                        <button type="submit" name="blok_guncelle" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Güncelle
+                        </button>
+                        <a href="admin-bilgi-bloklari.php" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> İptal
+                        </a>
+                        <?php else: ?>
+                        <button type="submit" name="blok_ekle" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Blok Ekle
+                        </button>
+                        <?php endif; ?>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="admin-box">
+                <h2>Mevcut Bilgi Blokları</h2>
+                <?php if (count($blok_listesi) > 0): ?>
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Başlık</th>
+                                <th>Sıra</th>
+                                <th>Durum</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($blok_listesi as $blok): ?>
+                            <tr>
+                                <td><?php echo $blok['id']; ?></td>
+                                <td><?php echo $blok['baslik']; ?></td>
+                                <td><?php echo $blok['sira']; ?></td>
+                                <td>
+                                    <?php if ($blok['aktif'] == 1): ?>
+                                        <span class="status active">Aktif</span>
+                                    <?php else: ?>
+                                        <span class="status inactive">Pasif</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <a href="admin-bilgi-bloklari.php?duzenle=1&id=<?php echo $blok['id']; ?>" 
+                                       class="btn btn-sm btn-edit">
+                                        <i class="fas fa-edit"></i> Düzenle
+                                    </a>
+                                    <a href="admin-bilgi-bloklari.php?sil=1&id=<?php echo $blok['id']; ?>" 
+                                       class="btn btn-sm btn-delete" 
+                                       onclick="return confirm('Bu bilgi bloğunu silmek istediğinize emin misiniz?')">
+                                        <i class="fas fa-trash-alt"></i> Sil
+                                    </a>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <?php else: ?>
+                <div class="no-data">
+                    <p>Henüz bilgi bloğu eklenmemiş.</p>
+                </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+    <script>
+    // Mobil Menü Toggle Fonksiyonu
+    document.addEventListener('DOMContentLoaded', function() {
+        // HTML yapısına menü toggle ve overlay ekleyelim
+        const body = document.querySelector('body');
+        
+        // Menü toggle butonu ekle
+        const menuToggle = document.createElement('div');
+        menuToggle.className = 'menu-toggle';
+        menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+        body.appendChild(menuToggle);
+        
+        // Overlay ekle
+        const overlay = document.createElement('div');
+        overlay.className = 'overlay';
+        body.appendChild(overlay);
+        
+        // Sidebar ve overlay değişkenleri
+        const sidebar = document.querySelector('.admin-sidebar');
+        
+        // Sayfa yüklendiğinde sidebar'ın doğru durumunu ayarla
+        function adjustSidebar() {
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('active');
+            }
+        }
+        
+        // Sayfa yüklendiğinde ve boyut değiştiğinde sidebar'ı ayarla
+        adjustSidebar();
+        window.addEventListener('resize', adjustSidebar);
+        
+        // Menü toggle olayı
+        menuToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            body.classList.toggle('menu-open');
+            
+            // Menü icon değiştir
+            const icon = this.querySelector('i');
+            if (icon.classList.contains('fa-bars')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+        
+        // Overlay tıklama olayı
+        overlay.addEventListener('click', function() {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            body.classList.remove('menu-open');
+            
+            // Menü ikonunu sıfırla
+            const icon = menuToggle.querySelector('i');
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+        });
+        
+        // Admin menü linklerine tıklandığında (mobil görünümde menüyü kapat)
+        const menuLinks = document.querySelectorAll('.admin-menu a');
+        menuLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                if (window.innerWidth <= 768) {
+                    setTimeout(function() {
+                        sidebar.classList.remove('active');
+                        overlay.classList.remove('active');
+                        body.classList.remove('menu-open');
+                        
+                        // Menü ikonunu sıfırla
+                        const icon = menuToggle.querySelector('i');
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    }, 100); // Biraz gecikme ekleyerek link tıklamasının işlenmesini sağla
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>
